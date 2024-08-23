@@ -1,38 +1,72 @@
-
-import React, { useState, useEffect } from 'react';
+import React,{useState,useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { styled } from '@mui/material/styles';
-import { tableCellClasses } from '@mui/material/TableCell';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Paper, Dialog, DialogActions, DialogContent, DialogContentText, Tooltip, Button, Grid } from '@mui/material';
+import {Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Paper, Dialog, DialogActions, DialogContent, DialogContentText, Tooltip, Button, Grid, TextField} from '@mui/material';
 
-import { IconButton } from '@mui/material';
+const PREFIX = 'TaxList';
 
+const classes = {
+  paper: `${PREFIX}-paper`,
+  addButton: `${PREFIX}-addButton`,
+  tableHead: `${PREFIX}-tableHead`,
+  tableBody: `${PREFIX}-tableBody`,
+  tableRowOdd: `${PREFIX}-tableRowOdd`,
+  deleteIcon: `${PREFIX}-deleteIcon`,
+  editIcon: `${PREFIX}-editIcon`,
+};
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  [`&.${classes.paper}`]: {
+    margin: theme.spacing(1),
+    padding: theme.spacing(2),
+  },
+}));
+const StyledButton = styled(Button)(({ theme }) => ({
+  [`&.${classes.addButton}`]: {
+    marginRight: theme.spacing(2),
+    marginTop: theme.spacing(2),
+    borderRadius: 2,
+    height: '30px',
+  },
+}));
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
+  [`&.${classes.tableHead}`]: {
     backgroundColor: theme.palette.common.white,
     color: theme.palette.common.black,
     fontWeight: 'bold',
   },
-  [`&.${tableCellClasses.body}`]: {
-    fontSize: 14,
+  [`&.${classes.tableBody}`]: {
+    fontSize: 13,
+  },
+}));
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  [`&.${classes.tableRowOdd}`]: {
+    backgroundColor: theme.palette.action.hover,
+  },
+}));
+const StyledIconContainer = styled('div')(({ theme }) => ({
+  display: 'inline-flex',
+  alignItems: 'center',
+}));
+const StyledIcon = styled('div')(({ theme }) => ({
+  [`&.${classes.deleteIcon}`]: {
+    cursor: 'pointer',
+    color: 'blue',
+
+  },
+  [`&.${classes.editIcon}`]: {
+    cursor: 'pointer',
+    color: 'blue',
+    marginLeft: theme.spacing(1)
   },
 }));
 
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  '&:nth-of-type(odd)': {
-    backgroundColor: theme.palette.action.hover,
-  },
-  '&:last-child td, &:last-child th': {
-    border: 0,
-  },
-}));
-                  //props
-const TaxList = ({ onDelete, onUpdate }) => {
-  const [taxes, setTaxes] = useState([]);
+const TaxList = ({ fetchData }) => {
+  const [data, setData] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
 
@@ -41,92 +75,98 @@ const TaxList = ({ onDelete, onUpdate }) => {
   useEffect(() => {
     axios.get('https://localhost:7274/api/taxdefinition')
       .then(response => {
-        setTaxes(response.data);
+        setData(response.data);
       })
       .catch(error => console.error('API çağrısında hata oluştu:', error));
   }, []);
 
-  const handleDeleteClick = (id) => {
+  const handleDelete = (id) => {
     setSelectedId(id);
     setOpen(true);
   };
-
-  const handleDeleteConfirm = () => {
-    if (onDelete) {
-      onDelete(selectedId);
+  const handleDeleteConfirm = async () => {
+    setOpen(false); // Pop-up'ı hemen kapat
+    try {
+      await axios.delete(`https://localhost:7274/api/taxdefinition/${selectedId}`);
+      fetchData();
+    } catch (error) {
+      console.error('Silme sırasında hata oluştu:', error);
     }
-    setOpen(false);
   };
-
-  const handleEditClick = (id) => {
+  const handleEdit = (id) => {
     navigate(`/add-update/${id}`);
   };
 
   return (
     <>
-      <Paper sx={{ margin: 'spacing(2)', padding: 'spacing(2)' }}>
-        <Grid container justifyContent="flex-end" >
+     <Grid container sx={{padding:'20px'}}>
+          <TextField id="filled-basic" label="Adı" variant="filled" size="small" sx={{ marginRight: 4 }} />
+          <TextField id="filled-basic" label="Yasal vergi kodu" variant="filled" size="small"sx={{ marginRight: 4 }} />
+          <TextField id="filled-basic" label="Oran(%)" variant="filled"size="small" sx={{ marginRight: 4 }} />
+          <Button variant="contained" size="small"> Bilgi getir</Button>
+        </Grid>
+      <StyledPaper className={classes.paper}>
+        <Grid container justifyContent="flex-end">
           <Grid item>
-            <Button
-              type="submit"
+            <StyledButton
               variant="contained"
               color="primary"
               size="small"
               startIcon={<AddIcon />}
-              sx={{
-                mr: 8,
-                mt: 2,
-                borderRadius: 2,
-                height: '30px',
-              }}
-              onClick={() => navigate('/add-update/0')}
-            >
-              Ekle
-            </Button>
+              className={classes.addButton}
+              onClick={() => navigate('/add-update/0')}> Ekle
+            </StyledButton>
           </Grid>
           <Grid container paddingTop={5} paddingBottom={5}>
-            <TableContainer >
+
+            <TableContainer>
               <Table sx={{ minWidth: 700 }} aria-label="customized table">
                 <TableHead>
                   <TableRow>
-                    <StyledTableCell align="left">Adı</StyledTableCell>
-                    <StyledTableCell align="left">Kod</StyledTableCell>
-                    <StyledTableCell align="left">Yasal vergi kodu</StyledTableCell>
-                    <StyledTableCell align="left">Açıklama</StyledTableCell>
-                    <StyledTableCell align="left">Müşteri tipi</StyledTableCell>
-                    <StyledTableCell align="left">Kaynak tipi</StyledTableCell>
-                    <StyledTableCell align="left">Oran</StyledTableCell>
-                    <StyledTableCell align="left">Başlangıç tarihi</StyledTableCell>
-                    <StyledTableCell align="left">Bitiş tarihi</StyledTableCell>
-                    <StyledTableCell align="right">İşlemler</StyledTableCell>
+                    <StyledTableCell className={classes.tableHead} align="left">Adı</StyledTableCell>
+                    <StyledTableCell className={classes.tableHead} align="left">Kod</StyledTableCell>
+                    <StyledTableCell className={classes.tableHead} align="left">Yasal vergi kodu</StyledTableCell>
+                    <StyledTableCell className={classes.tableHead} align="left">Açıklama</StyledTableCell>
+                    <StyledTableCell className={classes.tableHead} align="left">Müşteri tipi</StyledTableCell>
+                    <StyledTableCell className={classes.tableHead} align="left">Kaynak tipi</StyledTableCell>
+                    <StyledTableCell className={classes.tableHead} align="left">Oran</StyledTableCell>
+                    <StyledTableCell className={classes.tableHead} align="left">Başlangıç tarihi</StyledTableCell>
+                    <StyledTableCell className={classes.tableHead} align="left">Bitiş tarihi</StyledTableCell>
+                    <StyledTableCell className={classes.tableHead} align="right">İşlemler</StyledTableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {taxes.map((tax) => (
-                    <StyledTableRow key={tax.id}>
-                      <StyledTableCell align="left">{tax.firstName}</StyledTableCell>
-                      <StyledTableCell align="left">{tax.code}</StyledTableCell>
-                      <StyledTableCell align="left">{tax.legalTaxCode}</StyledTableCell>
-                      <StyledTableCell align="left">{tax.description}</StyledTableCell>
-                      <StyledTableCell align="left">{tax.customerType}</StyledTableCell>
-                      <StyledTableCell align="left">{tax.taxCalculationType}</StyledTableCell>
-                      <StyledTableCell align="left">{tax.ratio}</StyledTableCell>
-                      <StyledTableCell align="left">{new Date(tax.startingDate).toLocaleDateString()}</StyledTableCell>
-                      <StyledTableCell align="left">{new Date(tax.endingDate).toLocaleDateString()}</StyledTableCell>
-                      <StyledTableCell align="right">
-                        <Tooltip title="Sil">
-                          <DeleteIcon
-                            sx={{ cursor: 'pointer', color: 'blue', marginRight: 4 }}
-                            onClick={() => handleDeleteClick(tax.id)}
-                          />
-                        </Tooltip>
-                        <Tooltip title="Düzenle" sx={{ marginTop: '10px' }}>
-                          <EditIcon
-                            sx={{ cursor: 'pointer', color: 'blue' }}
-                            onClick={() => handleEditClick(tax.id)}
-                          />
-                        </Tooltip>
-                      </StyledTableCell>
+                  {data.map((tax, index) => (
+                    <StyledTableRow key={tax.id} className={index % 2 ? classes.tableRowOdd : ''}>
+                      <StyledTableCell className={classes.tableBody} align="left">{tax.firstName}</StyledTableCell>
+                      <StyledTableCell className={classes.tableBody} align="left">{tax.code}</StyledTableCell>
+                      <StyledTableCell className={classes.tableBody} align="left">{tax.legalTaxCode}</StyledTableCell>
+                      <StyledTableCell className={classes.tableBody} align="left">{tax.description}</StyledTableCell>
+                      <StyledTableCell className={classes.tableBody} align="left">{tax.customerType}</StyledTableCell>
+                      <StyledTableCell className={classes.tableBody} align="left">{tax.taxCalculationType}</StyledTableCell>
+                      <StyledTableCell className={classes.tableBody} align="left">{tax.ratio}</StyledTableCell>
+                      <StyledTableCell className={classes.tableBody} align="left">{new Date(tax.startingDate).toLocaleDateString()}</StyledTableCell>
+                      <StyledTableCell className={classes.tableBody} align="left">{new Date(tax.endingDate).toLocaleDateString()}</StyledTableCell>
+                      <TableCell align="right">
+                        <StyledIconContainer>
+                          <Tooltip title="Sil">
+                            <StyledIcon
+                              className={classes.deleteIcon}
+                              onClick={() => handleDelete(tax.id)}
+                            >
+                              <DeleteIcon />
+                            </StyledIcon>
+                          </Tooltip>
+                          <Tooltip title="Düzenle">
+                            <StyledIcon
+                              className={classes.editIcon}
+                              onClick={() => handleEdit(tax.id)}
+                            >
+                              <EditIcon />
+                            </StyledIcon>
+                          </Tooltip>
+                        </StyledIconContainer>
+                      </TableCell>
                     </StyledTableRow>
                   ))}
                 </TableBody>
@@ -134,14 +174,12 @@ const TaxList = ({ onDelete, onUpdate }) => {
             </TableContainer>
           </Grid>
         </Grid>
-      </Paper>
-      {/* Onay Pop-up*/}
-      <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
-      >
+      </StyledPaper>
+
+      {/* Onay Pop-up */}
+      <Dialog open={open} onClose={() => setOpen(false)} >
         <DialogContent>
-          <DialogContentText> Bu işlemi geri alamazsınız. Silmek istediğinize emin misiniz?</DialogContentText>
+          <DialogContentText>Bu işlemi geri alamazsınız. Silmek istediğinize emin misiniz?</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)} color="primary">Hayır</Button>
@@ -151,6 +189,4 @@ const TaxList = ({ onDelete, onUpdate }) => {
     </>
   );
 };
-
 export default TaxList;
-
