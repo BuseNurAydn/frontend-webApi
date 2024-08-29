@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Box, Card, CardContent, Autocomplete, InputAdornment, Typography } from "@mui/material";
+import { Button, Box, Card, CardContent, Autocomplete, InputAdornment, Typography} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import TextField from "@mui/material/TextField";
 import EventIcon from '@mui/icons-material/Event';
@@ -96,6 +96,7 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
   const [formState, setFormState] = useState(initialFormState);
   const { id } = useParams();
   const navigate = useNavigate();
+  
  //enumlar için
   const [customerTypes, setCustomerTypes] = useState([]);
   const [taxCalculationTypes, setTaxCalculationTypes] = useState([]);
@@ -103,7 +104,7 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
   useEffect(() => {
     // API çağrısı yaparak ilgili veriyi çekip güncelleme işlemi
     if (id) {
-      axios.get(`https://localhost:7274/api/taxdefinition/${id}`)
+      axios.get(`http://localhost:7274/api/taxdefinition/${id}`)
         .then(response => {
           setFormState(response.data);  // Gelen veriyi state'e kaydet
         })
@@ -129,7 +130,8 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
   const handleAutocompleteChange = (event, value, name) => {
     setFormState({
       ...formState,
-      [name]: value ? value.id : '', 
+      [name]: value ? value.value : '',
+     // [name]: value ? value.id : '', 
     });
   };
 
@@ -138,7 +140,7 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
     try{
     if (id) {
       // Güncelleme işlemi
-      axios.put(`https://localhost:7274/api/taxdefinition/${id}`, formState)
+      axios.put(`http://localhost:7274/api/taxdefinition/${id}`, formState)
         .then(response => {
           console.log('Güncelleme başarılı:', response.data);
 
@@ -150,7 +152,7 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
         .catch(error => console.error('Güncelleme sırasında hata oluştu:', error));
     } else {
       // Yeni kayıt ekleme işlemi 
-      axios.post('https://localhost:7274/api/taxdefinition', formState);
+      axios.post('http://localhost:7274/api/taxdefinition', formState);
     }
     setFormState(initialFormState);
      // Başarılı olursa listeleme sayfasına yönlendir
@@ -168,29 +170,26 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
     }
     setFormState(initialFormState); // Reset form
   };*/}
-
-
-  {/*
+  
   useEffect(() => {
-    axios.get('https://localhost:7274/api/customertypes')
+    // Customer Types API çağrısı
+    axios.get('http://localhost:7274/api/enums/customer-types')
       .then(response => {
         setCustomerTypes(response.data);
       })
       .catch(error => {
-        console.error('There was an error fetching the customer types!', error);
+        console.error('Error fetching customer types:', error);
       });
-  }, []);
-
-  useEffect(() => {
-    axios.get('api/taxcalculationtypes')
+    // Tax Calculation Types API çağrısı
+    axios.get('http://localhost:7274/api/enums/tax-calculation-types')
       .then(response => {
         setTaxCalculationTypes(response.data);
       })
       .catch(error => {
-        console.error('There was an error fetching the customer types!', error);
+        console.error('Error fetching tax calculation types:', error);
       });
-  }, []);
-*/}
+}, []);
+
 
   return (
     <FormWrapper onSubmit={handleSubmit} >
@@ -249,8 +248,8 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
               />
               <StyledAutocomplete
                 options={customerTypes}
-                getOptionLabel={(option) => option.name || ""}
-                value={formState.customerType}
+                getOptionLabel={(option) => option.text || ''}
+                value={customerTypes.find(type => type.value === formState.customerType) || null}
                 onChange={(event, value) =>
                   handleAutocompleteChange(event, value, "customerType")
                 }
@@ -263,8 +262,8 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
             <BoxAuto>
               <StyledAutocomplete
                 options={taxCalculationTypes}
-                getOptionLabel={(option) => option.name || ""}
-                value={formState.taxCalculationType}
+                getOptionLabel={(option) => option.text || ''}
+                value={taxCalculationTypes.find(type => type.value === formState.taxCalculationType) || null} 
                 onChange={(event, value) =>
                   handleAutocompleteChange(event, value, "taxCalculationType")
                 }

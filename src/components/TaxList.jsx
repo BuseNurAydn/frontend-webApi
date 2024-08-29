@@ -73,7 +73,7 @@ const TaxList = ({ fetchData }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('https://localhost:7274/api/taxdefinition')
+    axios.get('http://localhost:7274/api/taxdefinition')
       .then(response => {
         setData(response.data);
       })
@@ -87,7 +87,7 @@ const TaxList = ({ fetchData }) => {
   const handleDeleteConfirm = async () => {
     setOpen(false); // Pop-up'ı hemen kapat
     try {
-      await axios.delete(`https://localhost:7274/api/taxdefinition/${selectedId}`);
+      await axios.delete(`http://localhost:7274/api/taxdefinition/${selectedId}`);
       fetchData();
     } catch (error) {
       console.error('Silme sırasında hata oluştu:', error);
