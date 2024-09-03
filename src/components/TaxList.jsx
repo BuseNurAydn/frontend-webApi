@@ -5,7 +5,8 @@ import { styled } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import {Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Paper, Dialog, DialogActions, DialogContent, DialogContentText, Tooltip, Button, Grid, TextField} from '@mui/material';
+import {Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Paper, Dialog, DialogActions, DialogContent, DialogContentText, Tooltip, Button, Grid} from '@mui/material';
+import TaxDefinitionFilter from './TaxDefinitionFilter';
 
 const PREFIX = 'TaxList';
 
@@ -38,6 +39,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     backgroundColor: theme.palette.common.white,
     color: theme.palette.common.black,
     fontWeight: 'bold',
+    fontSize: 14,
   },
   [`&.${classes.tableBody}`]: {
     fontSize: 13,
@@ -69,8 +71,8 @@ const TaxList = ({ fetchData }) => {
   const [data, setData] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
-
   const navigate = useNavigate();
+  const [filterParams, setFilterParams] = useState({});
 
   useEffect(() => {
     axios.get('http://localhost:7274/api/taxdefinition')
@@ -79,6 +81,10 @@ const TaxList = ({ fetchData }) => {
       })
       .catch(error => console.error('API çağrısında hata oluştu:', error));
   }, []);
+
+  useEffect(() => {
+    fetchFilteredTaxDefinitions(filterParams);
+  }, [filterParams]);
 
   const handleDelete = (id) => {
     setSelectedId(id);
@@ -97,14 +103,22 @@ const TaxList = ({ fetchData }) => {
     navigate(`/add-update/${id}`);
   };
 
+  const fetchFilteredTaxDefinitions = async (params) => {
+    try {
+      const response = await fetch(`http://localhost:7274/api/taxdefinition/filter?${new URLSearchParams(params)}`);
+      const result = await response.json();
+      setData(result);
+    } catch (error) {
+      console.error("Error fetching filtered tax definitions:", error);
+    }
+  };
+  const handleFilterChange = (params) => {
+    setFilterParams(params);
+  };
+  
   return (
     <>
-     <Grid container sx={{padding:'20px'}}>
-          <TextField id="filled-basic" label="Adı" variant="filled" size="small" sx={{ marginRight: 4 }} />
-          <TextField id="filled-basic" label="Yasal vergi kodu" variant="filled" size="small"sx={{ marginRight: 4 }} />
-          <TextField id="filled-basic" label="Oran(%)" variant="filled"size="small" sx={{ marginRight: 4 }} />
-          <Button variant="contained" size="small"> Bilgi getir</Button>
-        </Grid>
+      <TaxDefinitionFilter onFilter={handleFilterChange} />
       <StyledPaper className={classes.paper}>
         <Grid container justifyContent="flex-end">
           <Grid item>
@@ -132,6 +146,7 @@ const TaxList = ({ fetchData }) => {
                     <StyledTableCell className={classes.tableHead} align="left">Oran</StyledTableCell>
                     <StyledTableCell className={classes.tableHead} align="left">Başlangıç tarihi</StyledTableCell>
                     <StyledTableCell className={classes.tableHead} align="left">Bitiş tarihi</StyledTableCell>
+                    <StyledTableCell className={classes.tableHead} align="left">Durum</StyledTableCell>
                     <StyledTableCell className={classes.tableHead} align="right">İşlemler</StyledTableCell>
                   </TableRow>
                 </TableHead>
@@ -147,6 +162,7 @@ const TaxList = ({ fetchData }) => {
                       <StyledTableCell className={classes.tableBody} align="left">{tax.ratio}</StyledTableCell>
                       <StyledTableCell className={classes.tableBody} align="left">{new Date(tax.startingDate).toLocaleDateString()}</StyledTableCell>
                       <StyledTableCell className={classes.tableBody} align="left">{new Date(tax.endingDate).toLocaleDateString()}</StyledTableCell>
+                      <StyledTableCell className={classes.tableBody} align="left">{tax.durumBool ? "Aktif" : "Pasif"}</StyledTableCell>
                       <TableCell align="right">
                         <StyledIconContainer>
                           <Tooltip title="Sil">
