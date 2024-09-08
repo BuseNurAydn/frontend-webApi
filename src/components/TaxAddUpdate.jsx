@@ -96,7 +96,7 @@ const initialFormState = {
 
 const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
   const [formState, setFormState] = useState(initialFormState);
-  const { id } = useParams();
+  const { id } = useParams(); // ID'yi URL parametresinden al
   const navigate = useNavigate();
 
   //enumlar için
@@ -106,13 +106,16 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
 
   useEffect(() => {
     // API çağrısı yaparak ilgili veriyi çekip güncelleme işlemi
-    if (id) {
+    if (id && id !== '0') {
       axios.get(`http://localhost:7274/api/taxdefinition/${id}`)
         .then(response => {
           setFormState(response.data);  // Gelen veriyi state'e kaydet
           console.log(response.data);
         })
         .catch(error => console.error('API çağrısında hata oluştu:', error));
+    }
+    else{
+      setFormState(initialFormState);
     }
   }, [id]);
 
@@ -135,44 +138,25 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
     setFormState({
       ...formState,
       [name]: value ? value.value : '',
-      // [name]: value ? value.id : '', 
     });
   };
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    try {
-      if (id) {
-        // Güncelleme işlemi
-        axios.put(`http://localhost:7274/api/taxdefinition/${id}`, formState)
-          .then(response => {
-            console.log('Güncelleme başarılı:', response.data);
 
-            // Formu temizle
-            setFormState(initialFormState)
-            // Listeleme ekranına yönlendir
-            navigate('/');
-          })
-          .catch(error => console.error('Güncelleme sırasında hata oluştu:', error));
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (id && id !== '0') {
+        // Güncelleme işlemi
+        await axios.put(`http://localhost:7274/api/taxdefinition/${id}`, formState);
       } else {
-        // Yeni kayıt ekleme işlemi 
-        axios.post('http://localhost:7274/api/taxdefinition', formState);
+        // Yeni kayıt ekleme işlemi
+        await axios.post('http://localhost:7274/api/taxdefinition', formState);
       }
       setFormState(initialFormState);
-      // Başarılı olursa listeleme sayfasına yönlendir
-      navigate('/');
+      navigate('/'); // Kaydetme sonrası listeleme ekranına yönlendir
     } catch (error) {
       console.error('API çağrısında hata oluştu:', error);
-    };
-  };
-  {/*
-    e.preventDefault();
-    if (formType === 'new') {
-      save(formState); // Save new record
-    } else if (formType === 'edit') {
-      update(formState); // Update existing record
     }
-    setFormState(initialFormState); // Reset form
-  };*/}
+  };
 
   useEffect(() => {
     // Customer Types API çağrısı
@@ -275,12 +259,12 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
                 options={statuses}
                 getOptionLabel={(option) => option.text}  
                 value={statuses.find(type => type.value === formState.status) || null}
-                renderInput={(params) => (
-                  <StyledTextField {...params} label="Durum" variant="filled" />
-                )}
                 onChange={(event, value) =>
                   handleAutocompleteChange(event, value, "status")
                 }
+                renderInput={(params) => (
+                  <StyledTextField {...params} label="Durum" variant="filled" />
+                )}
                 fullWidth
               />
             </BoxField>
@@ -338,5 +322,4 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
     </FormWrapper>
   );
 };
-
 export default TaxAddUpdateForm;

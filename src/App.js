@@ -63,7 +63,7 @@ function App() {
             <ListItem onClick={handleDrawerClose} component={Link} sx={{color:'black'}}  to="/">
               <ListItemText primary="Listeleme" />
             </ListItem>
-            <ListItem  onClick={handleDrawerClose} component={Link} sx={{color:'black'}} to="/add-update/0">
+            <ListItem  onClick={handleDrawerClose} component={Link} sx={{color:'black'}} to="/add-update">
               <ListItemText primary="Vergi Tanımı" />
             </ListItem>
           </List>
@@ -72,6 +72,7 @@ function App() {
         <Content>
           <Routes>
             <Route path="/" element={<TaxList />} />
+            <Route path="/add-update" element={<TaxAddUpdate />} /> {/* yeni kayıt eklemek için */}
             <Route path="/add-update/:id" element={<TaxAddUpdate />} /> {/* Güncelleme için parametre ile */}
           </Routes>
         </Content>
