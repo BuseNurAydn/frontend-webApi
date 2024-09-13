@@ -36,3 +36,10 @@
     transform: rotate(360deg);
   }
 }
+.even-row {
+  background-color: #f5f5f5; /* Tek satırlar gri */
+}
+
+.odd-row {
+  background-color: white; /* Çift satırlar beyaz */
+}

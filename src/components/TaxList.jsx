@@ -9,6 +9,7 @@ import AddIcon from '@mui/icons-material/Add';
 import {Paper, Dialog, DialogActions, DialogContent, DialogContentText, Tooltip, Button, Grid} from '@mui/material';
 import TaxDefinitionFilter from './TaxDefinitionFilter';
 import { DataGrid} from '@mui/x-data-grid';
+import '../App.css'; // CSS dosyası
 
 const PREFIX = 'TaxList';
 
@@ -240,6 +241,9 @@ const TaxList = ({ fetchData }) => {
                 rows={data}
                 columns={columns}
                 getRowId={(row) => row.id} // Benzersiz id belirlemek için
+                getRowClassName={(params) =>
+                  params.indexRelativeToCurrentPage % 2 === 0 ? 'even-row' : 'odd-row'
+                }
               />
             </div>
           </Grid>
