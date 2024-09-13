@@ -152,7 +152,7 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
         await axios.post('http://localhost:7274/api/taxdefinition', formState);
       }
       setFormState(initialFormState);
-      navigate('/'); // Kaydetme sonrası listeleme ekranına yönlendir
+      navigate('/'); // Kaydetme ve güncelleme sonrası listeleme ekranına yönlendir
     } catch (error) {
       console.error('API çağrısında hata oluştu:', error);
     }
@@ -161,7 +161,7 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
   useEffect(() => {
     // Customer Types API çağrısı
     axios.get('http://localhost:7274/api/enums/customer-types')
-      .then(response => { setCustomerTypes(response.data); })
+      .then(response => { setCustomerTypes(response.data); })  // Veriyi state'e kaydediyoruz
       .catch(error => { console.error('Error fetching customer types:', error); });
     // Tax Calculation Types API çağrısı
     axios.get('http://localhost:7274/api/enums/tax-calculation-types')

@@ -4,9 +4,11 @@ import axios from 'axios';
 import { styled } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { IconButton } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import {Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Paper, Dialog, DialogActions, DialogContent, DialogContentText, Tooltip, Button, Grid} from '@mui/material';
+import {Paper, Dialog, DialogActions, DialogContent, DialogContentText, Tooltip, Button, Grid} from '@mui/material';
 import TaxDefinitionFilter from './TaxDefinitionFilter';
+import { DataGrid} from '@mui/x-data-grid';
 
 const PREFIX = 'TaxList';
 
@@ -32,38 +34,6 @@ const StyledButton = styled(Button)(({ theme }) => ({
     marginTop: theme.spacing(2),
     borderRadius: 2,
     height: '30px',
-  },
-}));
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${classes.tableHead}`]: {
-    backgroundColor: theme.palette.common.white,
-    color: theme.palette.common.black,
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  [`&.${classes.tableBody}`]: {
-    fontSize: 13,
-  },
-}));
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  [`&.${classes.tableRowOdd}`]: {
-    backgroundColor: theme.palette.action.hover,
-  },
-}));
-const StyledIconContainer = styled('div')(({ theme }) => ({
-  display: 'inline-flex',
-  alignItems: 'center',
-}));
-const StyledIcon = styled('div')(({ theme }) => ({
-  [`&.${classes.deleteIcon}`]: {
-    cursor: 'pointer',
-    color: 'blue',
-
-  },
-  [`&.${classes.editIcon}`]: {
-    cursor: 'pointer',
-    color: 'blue',
-    marginLeft: theme.spacing(1)
   },
 }));
 
@@ -115,7 +85,140 @@ const TaxList = ({ fetchData }) => {
   const handleFilterChange = (params) => {
     setFilterParams(params);
   };
-  
+
+  const columns = [
+    {
+      field: 'firstName',
+      headerName: 'Adı',
+      minWidth: 150,
+      editable: true,
+      flex: 1,
+      renderHeader: () => (
+        <div style={{ fontWeight: 'bold' }}>Adı</div>
+      ),
+    },
+    {
+      field: 'code',
+      headerName: 'Kod',
+      minWidth: 80,
+      editable: true,
+      flex: 1,
+      renderHeader: () => (
+        <div style={{ fontWeight: 'bold' }}>Kod</div>
+      ),
+    },
+    {
+      field: 'legalTaxCode',
+      headerName: 'Yasal Vergi Kodu',
+      minWidth: 140,
+      editable: true,
+      flex: 1,
+      renderHeader: () => (
+        <div style={{ fontWeight: 'bold' }}>Yasal Vergi Kodu</div>
+      ),
+    },
+    {
+      field: 'description',
+      headerName: 'Açıklama',
+      minWidth: 150,
+      editable: true,
+      flex: 1,
+      renderHeader: () => (
+        <div style={{ fontWeight: 'bold' }}>Açıklama</div>
+      ),
+    },
+    {
+      field: 'customerType',
+      headerName: 'Müşteri Tipi',
+      minWidth: 130,
+      editable: true,
+      flex: 1,
+      renderHeader: () => (
+        <div style={{ fontWeight: 'bold' }}>Müşteri Tipi</div>
+      ),
+    },
+    {
+      field: 'taxCalculationType',
+      headerName: 'Kaynak Tipi',
+      minWidth: 120,
+      editable: true,
+      flex: 1,
+      renderHeader: () => (
+        <div style={{ fontWeight: 'bold' }}>Kaynak Tipi</div>
+      ),
+    },
+    {
+      field: 'ratio',
+      headerName: 'Oran',
+      maxWidth: 50,
+      editable: true,
+      flex: 0.3,
+      renderHeader: () => (
+        <div style={{ fontWeight: 'bold' }}>Oran</div>
+      ),
+    },
+    {
+      field: 'startingDate',
+      headerName: 'Başlangıç tarihi',
+      minWidth: 130,
+      editable: true,
+      flex: 1,
+      type:'date',
+      valueGetter: (value) => value && new Date(value),
+      renderHeader: () => (
+        <div style={{ fontWeight: 'bold' }}>Başlangıç Tarihi</div>
+      ),
+    },
+    {
+      field: 'endingDate',
+      type:'date',
+      headerName: 'Bitiş tarihi',
+      minWidth: 100,
+      editable: true,
+      flex: 1,
+      valueGetter: (value) => value && new Date(value),
+      renderHeader: () => (
+        <div style={{ fontWeight: 'bold' }}>Bitiş Tarihi</div>
+      ),
+    },
+    {
+      field: 'status',
+      headerName: 'Durum',
+      minWidth: 70,
+      flex: 0.5,
+      renderHeader: () => (
+        <div style={{ fontWeight: 'bold' }}>Durum</div>
+      ),
+    },
+    {
+      field: 'actions',
+      headerName: 'İşlemler',
+      minWidth: 40,
+      renderHeader: () => (
+        <div style={{ fontWeight: 'bold' }}>İşlemler</div>
+      ),
+      renderCell: (params) => (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', align: "left" }}>
+          <Tooltip title="Sil">
+            <IconButton
+              color="primary"
+              onClick={() => handleDelete(params.row.id)}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Düzenle">
+            <IconButton
+              color="primary"
+              onClick={() => handleEdit(params.row.id)}
+            >
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+        </div>
+      )
+    }
+  ];
   return (
     <>
       <TaxDefinitionFilter onFilter={handleFilterChange} />
@@ -132,62 +235,13 @@ const TaxList = ({ fetchData }) => {
             </StyledButton>
           </Grid>
           <Grid container paddingTop={5} paddingBottom={5}>
-
-            <TableContainer>
-              <Table sx={{ minWidth: 700 }} aria-label="customized table">
-                <TableHead>
-                  <TableRow>
-                    <StyledTableCell className={classes.tableHead} align="left">Adı</StyledTableCell>
-                    <StyledTableCell className={classes.tableHead} align="left">Kod</StyledTableCell>
-                    <StyledTableCell className={classes.tableHead} align="left">Yasal vergi kodu</StyledTableCell>
-                    <StyledTableCell className={classes.tableHead} align="left">Açıklama</StyledTableCell>
-                    <StyledTableCell className={classes.tableHead} align="left">Müşteri tipi</StyledTableCell>
-                    <StyledTableCell className={classes.tableHead} align="left">Kaynak tipi</StyledTableCell>
-                    <StyledTableCell className={classes.tableHead} align="left">Oran</StyledTableCell>
-                    <StyledTableCell className={classes.tableHead} align="left">Başlangıç tarihi</StyledTableCell>
-                    <StyledTableCell className={classes.tableHead} align="left">Bitiş tarihi</StyledTableCell>
-                    <StyledTableCell className={classes.tableHead} align="left">Durum</StyledTableCell>
-                    <StyledTableCell className={classes.tableHead} align="right">İşlemler</StyledTableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {data.map((tax, index) => (
-                    <StyledTableRow key={tax.id} className={index % 2 ? classes.tableRowOdd : ''}>
-                      <StyledTableCell className={classes.tableBody} align="left">{tax.firstName}</StyledTableCell>
-                      <StyledTableCell className={classes.tableBody} align="left">{tax.code}</StyledTableCell>
-                      <StyledTableCell className={classes.tableBody} align="left">{tax.legalTaxCode}</StyledTableCell>
-                      <StyledTableCell className={classes.tableBody} align="left">{tax.description}</StyledTableCell>
-                      <StyledTableCell className={classes.tableBody} align="left">{tax.customerType}</StyledTableCell>
-                      <StyledTableCell className={classes.tableBody} align="left">{tax.taxCalculationType}</StyledTableCell>
-                      <StyledTableCell className={classes.tableBody} align="left">{tax.ratio}</StyledTableCell>
-                      <StyledTableCell className={classes.tableBody} align="left">{new Date(tax.startingDate).toLocaleDateString()}</StyledTableCell>
-                      <StyledTableCell className={classes.tableBody} align="left">{new Date(tax.endingDate).toLocaleDateString()}</StyledTableCell>
-                      <StyledTableCell className={classes.tableBody} align="left">{tax.durumBool ? "Aktif" : "Pasif"}</StyledTableCell>
-                      <TableCell align="right">
-                        <StyledIconContainer>
-                          <Tooltip title="Sil">
-                            <StyledIcon
-                              className={classes.deleteIcon}
-                              onClick={() => handleDelete(tax.id)}
-                            >
-                              <DeleteIcon />
-                            </StyledIcon>
-                          </Tooltip>
-                          <Tooltip title="Düzenle">
-                            <StyledIcon
-                              className={classes.editIcon}
-                              onClick={() => handleEdit(tax.id)}
-                            >
-                              <EditIcon />
-                            </StyledIcon>
-                          </Tooltip>
-                        </StyledIconContainer>
-                      </TableCell>
-                    </StyledTableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+          <div style={{ height: 500, width: '100%'}}>
+              <DataGrid
+                rows={data}
+                columns={columns}
+                getRowId={(row) => row.id} // Benzersiz id belirlemek için
+              />
+            </div>
           </Grid>
         </Grid>
       </StyledPaper>
