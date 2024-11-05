@@ -11,6 +11,7 @@ import TaxDefinitionFilter from './TaxDefinitionFilter';
 import { DataGrid} from '@mui/x-data-grid';
 import '../App.css'; // CSS dosyası
 
+
 const PREFIX = 'TaxList';
 
 const classes = {
@@ -45,13 +46,14 @@ const TaxList = ({ fetchData }) => {
   const navigate = useNavigate();
   const [filterParams, setFilterParams] = useState({});
 
+
   useEffect(() => {
     axios.get('http://localhost:7274/api/taxdefinition')
       .then(response => {
         setData(response.data);
       })
       .catch(error => console.error('API çağrısında hata oluştu:', error));
-  }, []);
+  },[]);
 
   useEffect(() => {
     fetchFilteredTaxDefinitions(filterParams);
@@ -86,7 +88,7 @@ const TaxList = ({ fetchData }) => {
   const handleFilterChange = (params) => {
     setFilterParams(params);
   };
-
+ 
   const columns = [
     {
       field: 'firstName',

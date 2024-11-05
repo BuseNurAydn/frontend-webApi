@@ -91,14 +91,14 @@ const initialFormState = {
   taxCalculationType: "",
   startingDate: "",
   endingDate: "",
-  status:" ",
+  status: " ",
 };
 
 const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
   const [formState, setFormState] = useState(initialFormState);
   const { id } = useParams(); // ID'yi URL parametresinden al
   const navigate = useNavigate();
-
+  
   //enumlar için
   const [customerTypes, setCustomerTypes] = useState([]);
   const [taxCalculationTypes, setTaxCalculationTypes] = useState([]);
@@ -114,11 +114,11 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
         })
         .catch(error => console.error('API çağrısında hata oluştu:', error));
     }
-    else{
+    else {
       setFormState(initialFormState);
     }
   }, [id]);
-
+  
   useEffect(() => {
     if (formType === 'edit' && existingData) {
       setFormState(existingData);
@@ -137,7 +137,7 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
   const handleAutocompleteChange = (event, value, name) => {
     setFormState({
       ...formState,
-      [name]: value ? value.value : '',
+      [name]: value ? value.value: '',
     });
   };
 
@@ -173,6 +173,11 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
       .catch(error => { console.error('Error fetching customer types:', error); });
   }, []);
 
+  const handleCancel = () => {
+    navigate('/'); // vazgeç butonuna tıklandığında listeleme sayfasına yönlendirilsin
+  };
+  
+  
 
   return (
     <FormWrapper onSubmit={handleSubmit} >
@@ -230,12 +235,10 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
                 fullWidth
               />
               <StyledAutocomplete
-                options={customerTypes} //backendden gelen 
+                options={customerTypes} // backend'den gelen customerTypes
                 getOptionLabel={(option) => option.text}
-                value={customerTypes.find(type => type.value === formState.customerType) || null}
-                onChange={(event, value) =>
-                  handleAutocompleteChange(event, value, "customerType")
-                }
+                value={customerTypes.find(type => type.value === formState.customerType) || null} // Eşleşen value
+                onChange={(event, value) => handleAutocompleteChange(event, value, "customerType")}
                 renderInput={(params) => (
                   <StyledTextField {...params} label="Müşteri Türü" variant="filled" />
                 )}
@@ -247,21 +250,17 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
                 options={taxCalculationTypes}
                 getOptionLabel={(option) => option.text}
                 value={taxCalculationTypes.find(type => type.value === formState.taxCalculationType) || null}
-                onChange={(event, value) =>
-                  handleAutocompleteChange(event, value, "taxCalculationType")
-                }
+                onChange={(event, value) => handleAutocompleteChange(event, value, "taxCalculationType")}
                 renderInput={(params) => (
                   <StyledTextField {...params} label="Vergi Hesaplama Türü" variant="filled" />
                 )}
                 fullWidth
               />
-              <Autocomplete
+              <StyledAutocomplete
                 options={statuses}
-                getOptionLabel={(option) => option.text}  
+                getOptionLabel={(option) => option.text}
                 value={statuses.find(type => type.value === formState.status) || null}
-                onChange={(event, value) =>
-                  handleAutocompleteChange(event, value, "status")
-                }
+                onChange={(event, value) => handleAutocompleteChange(event, value, "status")}
                 renderInput={(params) => (
                   <StyledTextField {...params} label="Durum" variant="filled" />
                 )}
@@ -314,7 +313,7 @@ const TaxAddUpdateForm = ({ existingData, formType, save, update }) => {
         </StyledCard>
       </StyledContainer>
       <ButtonContainer>
-        <Button variant="text">Vazgeç</Button>
+        <Button variant="text" onClick={handleCancel}>Vazgeç</Button>
         <Button variant="contained" type="submit" color="primary" onClick={handleSubmit} startIcon={<SaveIcon />} sx={{ marginRight: '20px' }}>
           Kaydet
         </Button>
