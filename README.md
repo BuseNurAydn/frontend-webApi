@@ -8,6 +8,6 @@
 - Axios
 
 ## Projeden bir kaç tane görsel
-![Proje görsel 1](./image/görsel-1.png)
-![Proje görsel 2](./image/görsel-2.png)
-![Proje görsel 3](./image/görsel-3.png)
+![Proje görsel 1](src/image/görsel-1.png)
+![Proje görsel 2](src/image/görsel-2.png)
+![Proje görsel 3](src/image/görsel-3.png)
